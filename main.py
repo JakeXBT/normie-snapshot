@@ -68,6 +68,7 @@ def fetch_transfer_events(start_block, end_block):
 # Keep a log of how many cycles have passed to ensure caching
 cycles = 0
 
+# The Normie token was deployed at block 11486835
 while current_block > 11486835:
     from_block = max(0, current_block - batch_size)
     to_block = current_block
@@ -103,7 +104,7 @@ with open("output/transfers.json", "w") as f:
 
 print(f"Total number of transfers: {len(transfers)}")
 
-# STEP 2: Fetch the lis of all addresses involved in the transfers
+# STEP 2: Fetch the list of all unique addresses involved in the transfers
 addresses = set()
 
 for transfer in transfers:
@@ -114,10 +115,10 @@ addresses = list(addresses)
 
 print(f"Total number of addresses: {len(addresses)}")
 
-# STEP 3: Fetch the balances of all addresses in a single multicall
+# STEP 3: Fetch the balances of all addresses using multicall batch calls
 address_balances = []
 
-# Batch addresses into groups of 1000 to avoid hitting the gas limit
+# Batch addresses into groups of batch_size to avoid hitting the gas limit
 batch_size = 250
 address_batches = [
     addresses[i : i + batch_size] for i in range(0, len(addresses), batch_size)
