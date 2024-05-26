@@ -27,6 +27,7 @@ transfers = []
 
 batch_size = 10000  # Number of blocks to fetch in each batch
 
+
 def fetch_transfer_events(start_block, end_block):
     try:
         events = NORMIE_TOKEN.events.Transfer.get_logs(
@@ -85,7 +86,9 @@ balances = multicall.call(calls)
 
 # Reformat the balances
 balances = [
-    max(int.from_bytes(item[1], "big") / NORMIE_RESCALING_FACTOR, 0) if item[0] else None
+    max(int.from_bytes(item[1], "big") / NORMIE_RESCALING_FACTOR, 0)
+    if item[0]
+    else None
     for item in balances
 ]
 
@@ -93,10 +96,10 @@ print(f"Fetched balances for {len(balances)} addresses")
 print(f"Number of calls made: {len(calls)}")
 
 # Step 4: Combine the balances with the addresses
-address_balances = [{
-    "address": address,
-    "balance": balance
-} for address, balance in zip(addresses, balances)]
+address_balances = [
+    {"address": address, "balance": balance}
+    for address, balance in zip(addresses, balances)
+]
 
 # Step 5: Export to a JSON file
 with open("holder_snapshot.json", "w") as f:
