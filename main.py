@@ -39,7 +39,7 @@ current_block = w3.eth.block_number
 
 # SAFETY CHECK: Ensure that the local Anvil fork is at the correct block number
 assert (
-    current_block == 14949166
+    current_block == 14977036
 ), "Please ensure that the local Anvil fork is at block 14949166."
 
 ########################################################
@@ -119,12 +119,19 @@ print(f"Total number of addresses: {len(addresses)}")
 address_balances = []
 
 # Batch addresses into groups of batch_size to avoid hitting the gas limit
-batch_size = 250
+batch_size = 500
 address_batches = [
     addresses[i : i + batch_size] for i in range(0, len(addresses), batch_size)
 ]
 
+# Write address batches to a JSON file
+with open("output/address_batches.json", "w") as f:
+    json.dump(address_batches, f)
+
 print(f"Total number of batches: {len(address_batches)}")
+
+results = []
+cycles = 0
 
 # Fetch the balances for each batch of addresses
 for batch in address_batches:
@@ -148,13 +155,19 @@ for batch in address_batches:
     ]
 
     # Combine the balances with the addresses
-    address_balances += [
+    results += [
         {"address": address, "balance": balance}
         for address, balance in zip(batch, balances)
     ]
 
     print(f"Processed batch of {len(batch)} addresses")
+    cycles += 1
+
+    if cycles % 10 == 0:
+        print(f"Saving address balances to a JSON file...")
+        with open("output/snapshot.json", "w") as f:
+            json.dump(results, f)
 
 # STEP 4: Export to a JSON file
 with open("output/snapshot.json", "w") as f:
-    json.dump(address_balances, f)
+    json.dump(results, f)
